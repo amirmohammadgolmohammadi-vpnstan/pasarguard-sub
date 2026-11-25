@@ -72,6 +72,9 @@ button:active,.btn:active{transform:scale(.96)}
 .loc em{font-style:normal;font-size:10.5px;color:var(--mute);background:var(--btn);padding:3px 8px;border-radius:99px;direction:ltr}
 .loc button{background:var(--btn);color:var(--text);padding:8px 12px;font-size:12px}
 .lqr{background:#fff;border-radius:14px;padding:10px;width:fit-content;margin:4px auto 10px;color:#333;font-size:12px}
+.lochead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.lochead h2{margin:0}
+.lochead .btn{padding:8px 12px;font-size:12px;white-space:nowrap}
 .cfgrow{display:grid;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
 .cfgrow .top{display:flex;align-items:center;gap:8px}
 .cfgrow .n{flex:1;font-size:13.5px;font-weight:600;min-width:0;word-break:break-word}
@@ -131,7 +134,7 @@ footer{text-align:center;font-size:11.5px;color:var(--mute)}
   </section>
 
   <section class="card">
-    <h2><span data-i="locs"></span> <small id="locN"></small></h2>
+    <div class="lochead"><h2><span data-i="locs"></span> <small id="locN"></small></h2><button class="btn go" id="copyAll" data-i="call" hidden></button></div>
     <div id="locs"></div>
   </section>
 
@@ -171,7 +174,7 @@ footer{text-align:center;font-size:11.5px;color:var(--mute)}
       left:'حجم باقی‌مانده',unl:'حجم نامحدود',unlv:'نامحدود',used:'مصرف‌شده',total:'حجم کل',days:'روز باقی‌مانده',exp:'تاریخ انقضا',
       seen:'آخرین اتصال',upd:'آخرین آپدیت اشتراک',online:'آنلاین',never:'هنوز نه',elapsed:'زمان سپری‌شده',ended:'تمام شده',dayu:'روز',
       sub:'لینک اشتراک',copy:'کپی',copied:'کپی شد ✓',qr:'نمایش QR کد',locs:'لوکیشن‌های موجود',noloc:'فعلاً لوکیشنی برای این اشتراک فعال نیست.',
-      other:'سایر',server:'سرور',qrbtn:'QR کد',cname:'کپی اسم',ccfg:'کپی کانفیگ',qrfail:'لینک برای QR خیلی بلنده',dl:'دانلود و اتصال',and:'اندروید',ios:'آیفون',pc:'کامپیوتر',
+      other:'سایر',server:'سرور',qrbtn:'QR کد',cname:'کپی اسم',ccfg:'کپی کانفیگ',call:'کپی همه کانفیگ‌ها',qrfail:'لینک برای QR خیلی بلنده',dl:'دانلود و اتصال',and:'اندروید',ios:'آیفون',pc:'کامپیوتر',
       get:'دانلود',add:'افزودن',add2:'روش ۲',n1:'پیشنهادی، ساده و سریع',n2:'با زدن «افزودن» لینک هم کپی میشه',n3:'پیشنهادی برای آیفون',n4:'نسخه iOS',n5:'ویندوز، مک و لینوکس',
       guide:'آموزش سریع',s1:'برنامه‌ی بالا رو نصب کن.',s2:'دکمه‌ی «افزودن» رو بزن تا لینک اشتراک خودکار وارد برنامه بشه. اگه نشد، لینک رو کپی کن و تو برنامه «افزودن از کلیپ‌بورد» رو بزن.',
       s3:'یه لوکیشن انتخاب کن و دکمه‌ی اتصال رو بزن.',support:'💬 پشتیبانی',
@@ -180,7 +183,7 @@ footer{text-align:center;font-size:11.5px;color:var(--mute)}
       left:'Data remaining',unl:'Unlimited data',unlv:'Unlimited',used:'Used',total:'Total',days:'Days left',exp:'Expires on',
       seen:'Last seen',upd:'Last sub update',online:'Online',never:'Not yet',elapsed:'Time elapsed',ended:'Ended',dayu:'days',
       sub:'Subscription link',copy:'Copy',copied:'Copied ✓',qr:'Show QR code',locs:'Available locations',noloc:'No active locations for this subscription.',
-      other:'Other',server:'Server',qrbtn:'QR',cname:'Copy name',ccfg:'Copy config',qrfail:'Link is too long for a QR code',dl:'Download & connect',and:'Android',ios:'iPhone',pc:'Desktop',
+      other:'Other',server:'Server',qrbtn:'QR',cname:'Copy name',ccfg:'Copy config',call:'Copy all configs',qrfail:'Link is too long for a QR code',dl:'Download & connect',and:'Android',ios:'iPhone',pc:'Desktop',
       get:'Get',add:'Add',add2:'Alt',n1:'Recommended, simple & fast',n2:'Tapping Add also copies the link',n3:'Best for iPhone',n4:'iOS version',n5:'Windows, Mac & Linux',
       guide:'Quick guide',s1:'Install the app above.',s2:'Tap "Add" to import your subscription automatically. If that fails, copy the link and use "Add from clipboard" in the app.',
       s3:'Pick a location and tap connect.',support:'💬 Support',
@@ -287,14 +290,19 @@ footer{text-align:center;font-size:11.5px;color:var(--mute)}
     else { var x=document.createElement('textarea'); x.value=text; document.body.appendChild(x); x.select(); document.execCommand('copy'); x.remove(); done(); }
   }
   $('copyBtn').onclick = function(){ copy(url,this) };
+  $('copyAll').onclick = function(){
+    var l = (S.links||[]).filter(Boolean);
+    if(l.length) copy(l.join('\n'), this, t('call'));
+  };
 
   function setLinks(){
     $('support').href = SUPPORT || '#'; $('support').style.display = SUPPORT ? '' : 'none';
     $('h1').href = $('h2').href = $('h3').href = 'hiddify://import/'+url+'#'+encodeURIComponent(USER);
-    var enc = encodeURIComponent(url);
+    var vurl = url.replace(/\/+$/,'') + '/links_base64';   /* آدرس مخصوص v2rayNG (بدون نیاز به HWID) */
+    var enc = encodeURIComponent(vurl);
     $('v1').href  = 'intent://install-sub?url='+enc+'#Intent;scheme=v2rayng;package=com.v2ray.ang;end';
     $('v1b').href = 'v2rayng://install-sub?url='+enc;
-    $('v1').onclick = $('v1b').onclick = function(){ try{ navigator.clipboard.writeText(url); }catch(e){} };
+    $('v1').onclick = $('v1b').onclick = function(){ try{ navigator.clipboard.writeText(vurl); }catch(e){} };
     $('s1').href = 'streisand://import/'+url;
   }
   setLinks();
@@ -327,6 +335,7 @@ footer{text-align:center;font-size:11.5px;color:var(--mute)}
   function renderLocs(list){
     var box = $('locs'); box.innerHTML = '';
     list = (list||[]).filter(Boolean);
+    $('copyAll').hidden = !list.length;
     $('locN').textContent = list.length ? '('+nf(list.length)+')' : '';
     if(!list.length){
       var eg = mk('div','grp'); eg.appendChild(mk('div','loc',t('noloc')));
